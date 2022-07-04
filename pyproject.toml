@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "pyzab"
-version = "0.0.6"
+version = "0.0.7"
 authors = [
   { name="Lucas Rocha Abraão", email="lucasrabraao@gmail.com" },
 ]
@@ -20,6 +20,7 @@ classifiers = [
 dependencies = [
     "python-dotenv",
 ]
+package-dir = "src"
 
 [project.urls]
 "Homepage" = "https://github.com/LucasRochaAbraao/pyzab"
