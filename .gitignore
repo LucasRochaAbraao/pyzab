@@ -3,3 +3,4 @@
 reference.txt
 dist
 __pycache__
+*egg-info*
