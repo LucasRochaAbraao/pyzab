@@ -1,16 +1,16 @@
 [build-system]
-requires = ["hatchling"]
-build-backend = "hatchling.build"
+requires = ["setuptools"]
+build-backend = "setuptools.build_meta"
 
 [project]
 name = "pyzab"
-version = "0.0.7"
+version = "0.0.8"
 authors = [
   { name="Lucas Rocha Abraão", email="lucasrabraao@gmail.com" },
 ]
 description = "Simple Python implementation of the Zabbix API."
 readme = "README.md"
-license = { file="LICENSE" }
+license = { text = "GNU General Public License v3 (GPLv3)" }
 requires-python = ">=3.8"
 classifiers = [
     "Programming Language :: Python :: 3",
@@ -19,6 +19,7 @@ classifiers = [
 ]
 dependencies = [
     "python-dotenv",
+    "requests",
 ]
 package-dir = "src"
 
