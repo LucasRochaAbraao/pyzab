@@ -16,13 +16,15 @@ import os
 ## - get a host interfaces
 ## - get all hosts in a groupid
 ## - get all templates
+## - add proxy option to create host
+## - add update_host method
 
 class Zabbix():
     def __init__(self, zabbix_api_url, zabbix_auth_token):
         self.url = zabbix_api_url
         self.token = zabbix_auth_token
 
-    def get_host(self, host_id, output=["host", "hostid", "status", "templateid"]):
+    def get_host(self, filter={"":""}, output=["host", "hostid", "status", "templateid"]):
         """
         returns:
         {'hostid': '12345', 'host': 'exemplo', 'status': '0', 'templateid': '0'}
@@ -32,9 +34,7 @@ class Zabbix():
             "method": "host.get",
             "params": {
                 "output": output,
-                "filter": {
-                    "hostid": host_id
-                },
+                "filter": filter,
                 "available": True
             },
             "auth": self.token,

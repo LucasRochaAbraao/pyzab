@@ -16,6 +16,7 @@ todos_hosts_desabilitados = zabbix.get_all_hosts(filter={"status": "1"}) # pegar
 
 for host in todos_hosts_desabilitados:
     interface = zabbix.get_host_interface(host_id=host['hostid'])
-    disponibilidade = ping(interface['ip'])
+    disponibilidade = ping(interface['ip'], count=3, interval=0.3)
     if disponibilidade.is_alive: # verdadeiro se o host tá pingando
+        print("habilitando!")
         zabbix.enable_host(host['hostid'])

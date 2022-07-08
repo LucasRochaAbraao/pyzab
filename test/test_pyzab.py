@@ -19,7 +19,7 @@ class TestPyzab(unittest.TestCase):
 
     def test_get_host(self):
         """ Tests an API call to get info about a host."""
-        host = self.zabbix.get_host(host_id="10917")
+        host = self.zabbix.get_host(filter={"hostid": "10917"})
         assert isinstance(host, dict)
         assert isinstance(host['host'], str)
     
