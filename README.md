@@ -1,2 +1,2 @@
 # pyzab
-Simple Python implementation of the Zabbix API.
+Simple Python implementation of a Zabbix API wrapper.
