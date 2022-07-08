@@ -3,8 +3,6 @@ import os
 from src.pyzab import Zabbix
 from dotenv import load_dotenv
 
-load_dotenv()
-zabbix_auth_token = os.getenv('zabbix_auth_token') # used to connect to zabbix api
 # From project directory, run:
 # python -m unittest test.test_pyzab
 
@@ -19,14 +17,19 @@ class TestPyzab(unittest.TestCase):
         }
         self.zabbix = Zabbix(**config)
 
-    def test_pz_get_host(self):
+    def test_get_host(self):
+        """ Tests an API call to get info about a host."""
+        host = self.zabbix.get_host(host_id="10917")
+        assert isinstance(host, dict)
+        assert isinstance(host['host'], str)
+    
+    def test_get_all_hosts(self):
         """ Tests an API call to get all hosts based on given optional filters."""
-        hosts = self.zabbix.get_host(host_id="10917")
-        assert isinstance(hosts, dict)
-        assert isinstance(hosts['host'], str)
+        hosts = self.zabbix.get_all_hosts(filter={"status": "1"})
+        assert isinstance(hosts, list)
 
     def test_create_host(self):
-        new_host = self.zabbix.create_host(hostname="Host para testes de API3", ip="10.99.99.99", group_id="5", template="10186")
+        new_host = self.zabbix.create_host(hostname="Host para testes de API3", ip="10.99.99.99", group_id="5", template_id="10186")
         assert isinstance(new_host, dict)
         assert isinstance(new_host['hostids'], list)
         assert isinstance(new_host['hostids'][0], str)
@@ -49,10 +52,13 @@ class TestPyzab(unittest.TestCase):
         assert isinstance(host['hostids'], list)
         assert host['hostids'][0] == '10917'
 
-    def test_get_group_ids(self):
-        ...
-
     def test_get_host_interface(self):
+        """ Tests an API call to get all interface info of a specific host."""
+        host = self.zabbix.get_host_interface(host_id="10917")
+        assert isinstance(host, dict)
+        assert host['hostid'] == "10917"
+
+    def test_get_group_ids(self):
         ...
 
     def test_get_all_templates(self):

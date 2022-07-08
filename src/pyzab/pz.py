@@ -41,11 +41,31 @@ class Zabbix():
             "id": 1
         }
         response = requests.post(url = self.url, json=get_hosts_json)
-        print(response.json())
+        #print(response.json())
         return response.json()['result'][0]
+    
+    def get_all_hosts(self, filter= {"": ""}, output=["host", "hostid", "status", "templateid"]):
+        """
+        returns:
+        [{'hostid': '12345', 'host': 'exemplo', 'status': '0', 'templateid': '0'}]
+        """
+        get_hosts_json = {
+            "jsonrpc": "2.0",
+            "method": "host.get",
+            "params": {
+                "output": output,
+                "filter": filter,
+                "available": True
+            },
+            "auth": self.token,
+            "id": 1
+        }
+        response = requests.post(url = self.url, json=get_hosts_json)
+        #print(response.json())
+        return response.json()['result']
 
 
-    def create_host(self, hostname, ip, group_id, template, type="agent", port="10050"):
+    def create_host(self, hostname, ip, group_id, template_id, type="agent", port="10050"):
         """
         Retorna: {'hostids': ['12345']}
         *** Se tiver host com esse hostname, tem que tratar
@@ -78,7 +98,7 @@ class Zabbix():
                 ],
                 "templates": [
                     {
-                        "templateid": template
+                        "templateid": template_id
                     }
                 ],
                 "macros": [
@@ -98,6 +118,7 @@ class Zabbix():
             "id": 1
         }
         response = requests.post(url=self.url, json=create_host_json)
+        #print(response.json())
         return response.json()['result']
 
     def delete_host(self, host_id):
@@ -132,7 +153,7 @@ class Zabbix():
             "id": 1
         }
         response = requests.post(url=self.url, json=enable_host_json)
-        print(response.json())
+        #print(response.json())
         return response.json()['result']
 
     def disable_host(self, host_id):
@@ -150,11 +171,28 @@ class Zabbix():
             "id": 1
         }
         response = requests.post(url=self.url, json=disable_host_json)
+        #print(response.json())
         return response.json()['result']
 
 
-    def get_host_interface(self):
-        ...
+    def get_host_interface(self, host_id):
+        """
+        returns:
+        {'hostid': '12345', 'host': 'exemplo', 'status': '0', 'templateid': '0'}
+        """
+        get_hosts_json = {
+            "jsonrpc": "2.0",
+            "method": "hostinterface.get",
+            "params": {
+                "output": "extend",
+                "hostids": host_id
+            },
+            "auth": self.token,
+            "id": 1
+        }
+        response = requests.post(url = self.url, json=get_hosts_json)
+        #print(response.json())
+        return response.json()['result'][0]
 
     def get_group_ids(self):
         ...
