@@ -13,7 +13,7 @@ def zabbix_client():
     }
     return Zabbix(**config)
 
-
+it@github.com:LucasRochaAbr
 def test_get_host(zabbix_client):
     """ Tests an API call to get info about a host."""
     host = zabbix_client.get_host(filter={"hostid": "10917"})
