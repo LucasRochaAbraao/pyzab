@@ -24,6 +24,7 @@ class Zabbix():
         self.url = zabbix_api_url
         self.token = zabbix_auth_token
 
+
     def get_host(self, filter={"":""}, output=["host", "hostid", "status", "templateid"]):
         """
         returns:
@@ -43,7 +44,8 @@ class Zabbix():
         response = requests.post(url = self.url, json=get_hosts_json)
         #print(response.json())
         return response.json()['result'][0]
-    
+
+
     def get_all_hosts(self, filter= {"": ""}, output=["host", "hostid", "status", "templateid"]):
         """
         returns:
@@ -67,8 +69,8 @@ class Zabbix():
 
     def create_host(self, hostname, ip, group_id, template_id, type="agent", port="10050"):
         """
-        Retorna: {'hostids': ['12345']}
-        *** Se tiver host com esse hostname, tem que tratar
+        Returns: {'hostids': ['12345']}
+        *** Still need to handle cases where the hostname already exists
         """
         create_host_json = {
             "jsonrpc": "2.0",
@@ -121,10 +123,11 @@ class Zabbix():
         #print(response.json())
         return response.json()['result']
 
+
     def delete_host(self, host_id):
         """
-        Retorna: {'hostids': ['10916']}
-        *** Se não existir host com esse hostid, tem que tratar
+        Returns: {'hostids': ['10916']}
+        *** Still need to handle cases where the hostname doesn't exist
         """
         delete_host_json = {
             "jsonrpc": "2.0",
@@ -138,9 +141,10 @@ class Zabbix():
         response = requests.post(url=self.url, json=delete_host_json)
         return response.json()['result']
 
+
     def enable_host(self, host_id):
         """
-        Retorna: {'hostids': ['10917']}
+        Returns: {'hostids': ['10917']}
         """
         enable_host_json = {
             "jsonrpc": "2.0",
@@ -156,9 +160,10 @@ class Zabbix():
         #print(response.json())
         return response.json()['result']
 
+
     def disable_host(self, host_id):
         """
-        Retorna: {'hostids': ['10917']}
+        Returns: {'hostids': ['10917']}
         """
         disable_host_json = {
             "jsonrpc": "2.0",
@@ -191,15 +196,45 @@ class Zabbix():
             "id": 1
         }
         response = requests.post(url = self.url, json=get_hosts_json)
-        #print(response.json())
         return response.json()['result'][0]
+
 
     def get_group_ids(self):
         ...
 
+
     def get_all_templates(self):
         ...
 
+
+    def create_webscenario(self, webscenario_name: str, template_id: str, steps: dict):
+        """
+        Note: This needs a hostid or templateid (which will still go into hostid field).
+        Returns: status code
+        """
+        update_template_json = {
+            "jsonrpc": "2.0",
+            "method": "httptest.create",
+            "params": {
+                "name": webscenario_name,
+                "hostid": template_id,
+                "steps": [
+                    {
+                        "name": steps["name"],
+                        "url": steps["url"],
+                        "status_codes": steps["status_code"],
+                        "no": steps["step_number"]
+                    }
+                ]
+            },
+            "auth": self.token,
+            "id": 1
+        }
+        response = requests.post(url=self.url, json=update_template_json)
+
+        return response.status_code
+
+
     def __repr__(self):
-        return "Instância de uma conexão com a API do Zabbix."
+        return "Zabbix API connection instance."
 
