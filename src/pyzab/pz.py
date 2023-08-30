@@ -1,3 +1,4 @@
+from enum import Enum
 import requests
 import os
 
@@ -18,6 +19,14 @@ import os
 ## - get all templates
 ## - add proxy option to create host
 ## - add update_host method
+
+
+class InterfaceType(Enum):
+    Agent = 1
+    SNMP = 2
+    IPMI = 3
+    JMX = 4
+
 
 class Zabbix():
     def __init__(self, zabbix_api_url, zabbix_auth_token):
@@ -42,7 +51,6 @@ class Zabbix():
             "id": 1
         }
         response = requests.post(url = self.url, json=get_hosts_json)
-        #print(response.json())
         return response.json()['result'][0]
 
 
@@ -63,64 +71,95 @@ class Zabbix():
             "id": 1
         }
         response = requests.post(url = self.url, json=get_hosts_json)
-        #print(response.json())
         return response.json()['result']
 
 
-    def create_host(self, hostname, ip, group_id, template_id, type="agent", port="10050"):
+    def create_host(
+            self,
+            hostname,
+            visible_hostname,
+            group_id,
+            template_id,
+            ip="127.0.0.1",
+            dns="",
+            tags=[],
+            macros=[],
+            interface_type="Agent",
+            useip=1,
+            snmp_version=2,
+            snmp_community="",
+            snmp_bulk=1,
+            port="10050"
+        ):
         """
         Returns: {'hostids': ['12345']}
-        *** Still need to handle cases where the hostname already exists
+        *** Still need to handle cases where the hostname already exists, and a bunch of other things lol
+        
+        tags = [{"tag": "test", "value": "test result"}]
+        macros = [{"macro": "{$LOCATION}", "value": "0:0:0", "description": "lat,lon,alt"}]
+        useip: 0 = connect using host DNS name. 1 = connect using host IP address
         """
+
+        interface_code = InterfaceType[interface_type]
+        if interface_code.value == 1:  # Agent
+            interface = {
+                "type": "1",
+                "main": "1",
+                "useip": useip,
+                "ip": ip,
+                "dns": dns,
+                "port": port
+            }
+        elif interface_code.value == 2:  # SNMP
+            interface = {
+                "type": "2",
+                "main": "1",
+                "details": {
+                    "version": snmp_version,
+                    "community": snmp_community,
+                    "bulk": snmp_bulk
+                },
+                "useip": useip,
+                "ip": ip,
+                "dns": dns,
+                "port": 161
+            }
+        else:
+            interface = {}
+
+        visible_hostname = visible_hostname if visible_hostname else hostname
+
+        params = {
+            "host": hostname,
+            "name": visible_hostname,
+            "interfaces": [interface],  # will eventually support multiple interfaces...
+            "groups": [
+                {
+                    "groupid": group_id
+                }
+            ],
+            "tags": tags,
+            "templates": [
+                {
+                    "templateid": template_id
+                }
+            ],
+            "macros": macros,
+            #"inventory_mode": 0,
+            #"inventory": {
+            #    "macaddress_a": "01234",
+            #    "macaddress_b": "56768"
+            #}
+        }
+
         create_host_json = {
             "jsonrpc": "2.0",
             "method": "host.create",
-            "params": {
-                "host": hostname,
-                "interfaces": [
-                    {
-                        "type": 1,
-                        "main": 1,
-                        "useip": 1,
-                        "ip": ip,
-                        "dns": "",
-                        "port": port
-                    }
-                ],
-                "groups": [
-                    {
-                        "groupid": group_id
-                    }
-                ],
-                "tags": [
-                    #{
-                    #    "tag": "Teste de tag",
-                    #    "value": "Resultado do teste"
-                    #}
-                ],
-                "templates": [
-                    {
-                        "templateid": template_id
-                    }
-                ],
-                "macros": [
-                    #{
-                    #    "macro": "{$USER_LOCATION}",
-                    #    "value": "0:0:0",
-                    #    "description": "latitude, longitude and altitude coordinates"
-                    #}
-                ],
-                #"inventory_mode": 0,
-                #"inventory": {
-                #    "macaddress_a": "01234",
-                #    "macaddress_b": "56768"
-                #}
-            },
+            "params": params,
             "auth": self.token,
             "id": 1
         }
         response = requests.post(url=self.url, json=create_host_json)
-        #print(response.json())
         return response.json()['result']
 
 
@@ -157,7 +196,6 @@ class Zabbix():
             "id": 1
         }
         response = requests.post(url=self.url, json=enable_host_json)
-        #print(response.json())
         return response.json()['result']
 
 
@@ -176,7 +214,6 @@ class Zabbix():
             "id": 1
         }
         response = requests.post(url=self.url, json=disable_host_json)
-        #print(response.json())
         return response.json()['result']
 
 
@@ -231,7 +268,6 @@ class Zabbix():
             "id": 1
         }
         response = requests.post(url=self.url, json=update_template_json)
-
         return response.status_code
 
 
