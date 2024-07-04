@@ -1,6 +1,5 @@
 from enum import Enum
 import requests
-import os
 
 # TODO
 ## - turn the module into a class, and the functions into methods
@@ -19,6 +18,8 @@ import os
 ## - get all templates
 ## - add proxy option to create host
 ## - add update_host method
+## - possible return from api: 
+## {'jsonrpc': '2.0', 'error': {'code': -32500, 'message': 'Application error.', 'data': 'API token expired.'}, 'id': 1}
 
 
 class InterfaceType(Enum):
@@ -215,6 +216,26 @@ class Zabbix():
         }
         response = requests.post(url=self.url, json=disable_host_json)
         return response.json()['result']
+
+
+    def get_items(self, host_id):
+        """
+        returns:
+        {'hostid': '12345', 'host': 'exemplo', 'status': '0', 'templateid': '0'}
+        """
+        get_hosts_json = {
+            "jsonrpc": "2.0",
+            "method": "item.get",
+            "params": {
+                #"output": ["itemid", "name", "key_"],
+                "output": "extend",
+                "hostids": host_id
+            },
+            "auth": self.token,
+            "id": 1
+        }
+        response = requests.post(url = self.url, json=get_hosts_json)
+        return response.json()['result'][0]
 
 
     def get_host_interface(self, host_id):
